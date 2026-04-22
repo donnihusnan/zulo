@@ -1,37 +1,12 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-model AdminUser {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      String   @default("admin")
-  createdAt DateTime @default(now())
-}
-
-model Agent {
-  id        String   @id @default(cuid())
-  name      String
-  phone     String
-  email     String?
-  photo     String?
-  bio       String?
-  createdAt DateTime @default(now())
-
-  properties Property[]
 }
 
 model Property {
@@ -50,11 +25,7 @@ model Property {
   status       String   @default("available")
   featured     Boolean  @default(false)
 
-  agentId String?
-  agent   Agent? @relation(fields: [agentId], references: [id])
-
   images PropertyImage[]
-  inquiries Inquiry[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -68,18 +39,3 @@ model PropertyImage {
 
   property Property @relation(fields: [propertyId], references: [id])
 }
-
-model Inquiry {
-  id         String   @id @default(cuid())
-  propertyId String?
-  name       String
-  email      String
-  phone      String
-  message    String
-  status     String   @default("new")
-
-  property Property? @relation(fields: [propertyId], references: [id])
-
-  createdAt DateTime @default(now())
-}
-

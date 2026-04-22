@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { PropertyInput } from "@/types/property.types";
 
 export const fetchDashboardStats = async () => {
   try {
@@ -23,7 +24,7 @@ export const fetchDashboardStats = async () => {
 };
 
 
-export const createProperty = async (data: any) => {
+export const createProperty = async (data: PropertyInput) => {
   try {
     const { images, ...propertyData } = data;
     
@@ -31,11 +32,11 @@ export const createProperty = async (data: any) => {
       const property = await tx.property.create({
         data: {
           ...propertyData,
-          price: parseFloat(propertyData.price),
-          bedrooms: parseInt(propertyData.bedrooms),
-          bathrooms: parseInt(propertyData.bathrooms),
-          landSize: parseFloat(propertyData.landSize),
-          buildingSize: propertyData.buildingSize ? parseFloat(propertyData.buildingSize) : 0,
+          price: Number(propertyData.price),
+          bedrooms: Number(propertyData.bedrooms),
+          bathrooms: Number(propertyData.bathrooms),
+          landSize: Number(propertyData.landSize),
+          buildingSize: propertyData.buildingSize !== undefined ? Number(propertyData.buildingSize) : 0,
         },
       });
 
@@ -84,7 +85,7 @@ export const fetchPropertyById = async (id: string) => {
   }
 };
 
-export const updateProperty = async (id: string, data: any) => {
+export const updateProperty = async (id: string, data: Partial<PropertyInput>) => {
   try {
     const { images, ...propertyData } = data;
     
@@ -93,11 +94,11 @@ export const updateProperty = async (id: string, data: any) => {
         where: { id },
         data: {
           ...propertyData,
-          price: parseFloat(propertyData.price),
-          bedrooms: parseInt(propertyData.bedrooms),
-          bathrooms: parseInt(propertyData.bathrooms),
-          landSize: parseFloat(propertyData.landSize),
-          buildingSize: propertyData.buildingSize ? parseFloat(propertyData.buildingSize) : 0,
+          price: Number(propertyData.price),
+          bedrooms: Number(propertyData.bedrooms),
+          bathrooms: Number(propertyData.bathrooms),
+          landSize: Number(propertyData.landSize),
+          buildingSize: propertyData.buildingSize !== undefined ? Number(propertyData.buildingSize) : 0,
         },
       });
 
@@ -127,10 +128,17 @@ export const updateProperty = async (id: string, data: any) => {
 };
 
 export const deleteProperty = async (id: string) => {
-
   try {
-    return await prisma.property.delete({
-      where: { id },
+    return await prisma.$transaction(async (tx) => {
+      // Delete images first (best practice to be explicit, even with onDelete: Cascade)
+      await tx.propertyImage.deleteMany({
+        where: { propertyId: id },
+      });
+
+      // Then delete the property
+      return await tx.property.delete({
+        where: { id },
+      });
     });
   } catch (error) {
     console.error("Error deleting property:", error);

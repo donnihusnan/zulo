@@ -138,6 +138,22 @@ const PropertyDetailPage = () => {
             />
           </div>
 
+          {(property as any).paymentSchema && (
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 animate-in fade-in slide-in-from-bottom-4">
+              <h3 className="mb-3 text-sm font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                <Tag className="h-4 w-4" />
+                Skema Pembayaran Tersedia
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {String((property as any).paymentSchema).split(", ").map((schema: string) => (
+                  <Badge key={schema} variant="secondary" className="bg-white/80 border-primary/10 text-primary font-bold px-4 py-2 rounded-lg">
+                    {schema}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
           <Separator />
 
           <div className="space-y-4">

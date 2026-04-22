@@ -23,7 +23,8 @@ model Property {
   buildingSize Float
   propertyType String
   status       String   @default("available")
-  featured     Boolean  @default(false)
+  featured      Boolean  @default(false)
+  paymentSchema String?
 
   images PropertyImage[]
 
@@ -37,5 +38,5 @@ model PropertyImage {
   imageUrl   String
   order      Int
 
-  property Property @relation(fields: [propertyId], references: [id])
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 }

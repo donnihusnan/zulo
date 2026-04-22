@@ -215,30 +215,28 @@ const PropertiesTable = () => {
         return (
           <div className="text-right">
             <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                }
-              />
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 px-2 py-2">
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Opsi Konten
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    render={<Link href={`/properties/${property.slug}`} target="_blank" />}
-                  >
-                    <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Lihat Halaman
+                  <DropdownMenuItem asChild>
+                    <Link href={`/properties/${property.slug}`} target="_blank">
+                      <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
+                      Lihat Halaman
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    render={<Link href={`/admin/properties/${property.id}/edit`} />}
-                  >
-                    <Edit className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Edit Detail
+                  <DropdownMenuItem asChild>
+                    <Link href={`/admin/properties/${property.id}/edit`}>
+                      <Edit className="mr-2 h-4 w-4 text-muted-foreground" />
+                      Edit Detail
+                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
@@ -330,11 +328,13 @@ const PropertiesTable = () => {
           </Select>
         </div>
 
-        <Button asChild className="h-10 px-6 font-bold shadow-emerald-200 shadow-lg hover:shadow-emerald-300 transition-all">
-          <Link href="/admin/properties/add">
-            <Plus className="mr-2 h-5 w-5" />
-            Tambah Properti
-          </Link>
+        <Button 
+          type="button"
+          onClick={() => router.push("/admin/properties/add")}
+          className="h-10 px-6 font-bold shadow-emerald-200 shadow-lg hover:shadow-emerald-300 transition-all"
+        >
+          <Plus className="mr-2 h-5 w-5" />
+          Tambah Properti
         </Button>
       </div>
 

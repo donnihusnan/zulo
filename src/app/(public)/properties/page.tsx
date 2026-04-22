@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProperties } from "@/services/property.service";
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, MapPin, Home, Bed, Bath, Square } from "lucide-react";
+import { Search, MapPin, Home, Bed, Bath } from "lucide-react";
 
 function PropertiesContent() {
   const searchParams = useSearchParams();
@@ -32,12 +32,12 @@ function PropertiesContent() {
   const [maxArea, setMaxArea] = useState("");
   const [searchQuery, setSearchQuery] = useState(initialQuery);
 
-  // Sync searchQuery if initialQuery changes (e.g., navigating from Hero again)
-  useEffect(() => {
-    if (initialQuery) {
-      setSearchQuery(initialQuery);
-    }
-  }, [initialQuery]);
+  const [prevInitialQuery, setPrevInitialQuery] = useState(initialQuery);
+
+  if (initialQuery !== prevInitialQuery) {
+    setPrevInitialQuery(initialQuery);
+    setSearchQuery(initialQuery);
+  }
 
   const { data: properties, isLoading } = useQuery({
     queryKey: [
@@ -261,7 +261,7 @@ function PropertiesContent() {
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="space-y-4">
-                <Skeleton className="aspect-[4/3] w-full rounded-xl" />
+                <Skeleton className="aspect-4/3 w-full rounded-xl" />
                 <Skeleton className="h-4 w-2/3" />
                 <Skeleton className="h-4 w-1/2" />
                 <Skeleton className="h-10 w-full" />

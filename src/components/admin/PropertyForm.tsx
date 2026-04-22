@@ -1,6 +1,6 @@
 "use client";
-
-import { useState } from "react";
+ 
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, Save, Image as ImageIcon, MapPin, Tag, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,41 +9,52 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
 import { MultiImageUpload } from "@/components/admin/MultiImageUpload";
 import { toast } from "sonner";
 import { createProperty, updateProperty } from "@/services/admin.service";
+import { PropertyInput, Property } from "@/types/property.types";
 import { createClient } from "@/utils/supabase/client";
-
+ 
 interface PropertyFormProps {
-  initialData?: any;
+  initialData?: Property;
   mode: "add" | "edit";
 }
-
+ 
 export function PropertyForm({ initialData, mode }: PropertyFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>(initialData?.images?.map((img: any) => img.imageUrl) || []);
+  const [selectedPaymentSchemas, setSelectedPaymentSchemas] = useState<string[]>(
+    initialData?.paymentSchema ? initialData.paymentSchema.split(", ") : []
+  );
   const router = useRouter();
   const queryClient = useQueryClient();
-  const supabase = createClient();
-
+  const supabase = useMemo(() => createClient(), []);
+ 
   const handleImagesChange = (newFiles: File[], keptUrls: string[]) => {
     setImageFiles(newFiles);
     setExistingImageUrls(keptUrls);
   };
-
+ 
+  const handlePaymentChange = (option: string, checked: boolean) => {
+    setSelectedPaymentSchemas(prev => 
+      checked ? [...prev, option] : prev.filter(item => item !== option)
+    );
+  };
+ 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-
+ 
     if (imageFiles.length === 0 && existingImageUrls.length === 0) {
       toast.error("Harap unggah setidaknya satu gambar.");
       setIsLoading(false);
       return;
     }
-
+ 
     const formData = new FormData(e.currentTarget);
     
     const saveAction = async () => {
@@ -54,42 +65,43 @@ export function PropertyForm({ initialData, mode }: PropertyFormProps) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
         const filePath = `properties/${fileName}`;
-
+ 
         const { error: uploadError } = await supabase.storage
           .from('property-images')
           .upload(filePath, file);
-
+ 
         if (uploadError) throw new Error(`Gagal mengunggah gambar: ${file.name}`);
-
+ 
         const { data: { publicUrl } } = supabase.storage
           .from('property-images')
           .getPublicUrl(filePath);
-
+ 
         newUploadedUrls.push(publicUrl);
       }
-
+ 
       // 2. Prepare final URLs list (Existing kept + New uploaded)
       const finalImages = [...existingImageUrls, ...newUploadedUrls];
-
+ 
       // 3. Prepare data
-      const data = {
-        title: formData.get("title"),
-        slug: (formData.get("title") as string).toLowerCase().replace(/ /g, "-"),
-        description: formData.get("description"),
-        price: formData.get("price"),
-        city: formData.get("city"),
-        address: formData.get("address"),
-        bedrooms: formData.get("bedrooms"),
-        bathrooms: formData.get("bathrooms"),
-        landSize: formData.get("landSize"),
-        buildingSize: formData.get("buildingSize") || "0",
-        propertyType: formData.get("propertyType"),
-        status: formData.get("status") || "available",
+      const data: PropertyInput = {
+        title: (formData.get("title") as string) || "",
+        slug: ((formData.get("title") as string) || "").toLowerCase().replace(/ /g, "-"),
+        description: (formData.get("description") as string) || "",
+        price: (formData.get("price") as string) || "0",
+        city: (formData.get("city") as string) || "",
+        address: (formData.get("address") as string) || "",
+        bedrooms: (formData.get("bedrooms") as string) || "0",
+        bathrooms: (formData.get("bathrooms") as string) || "0",
+        landSize: (formData.get("landSize") as string) || "0",
+        buildingSize: (formData.get("buildingSize") as string) || "0",
+        propertyType: (formData.get("propertyType") as string) || "Rumah",
+        paymentSchema: selectedPaymentSchemas.length > 0 ? selectedPaymentSchemas.join(", ") : null,
+        status: (formData.get("status") as string) || "available",
         images: finalImages,
         featured: formData.get("featured") === "on",
       };
-
-
+ 
+ 
       // 4. Create or Update in DB
       if (mode === "edit" && initialData?.id) {
         return await updateProperty(initialData.id, data);
@@ -97,7 +109,7 @@ export function PropertyForm({ initialData, mode }: PropertyFormProps) {
         return await createProperty(data);
       }
     };
-
+ 
     try {
       const promise = saveAction();
       toast.promise(promise, {
@@ -117,7 +129,7 @@ export function PropertyForm({ initialData, mode }: PropertyFormProps) {
       setIsLoading(false);
     }
   };
-
+ 
   return (
     <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-3">
       <div className="lg:col-span-2 space-y-8">
@@ -155,7 +167,7 @@ export function PropertyForm({ initialData, mode }: PropertyFormProps) {
             </div>
           </CardContent>
         </Card>
-
+ 
         <Card className="border-none shadow-md overflow-hidden bg-background/50 backdrop-blur">
           <CardHeader className="border-b bg-muted/30">
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -188,7 +200,7 @@ export function PropertyForm({ initialData, mode }: PropertyFormProps) {
             </div>
           </CardContent>
         </Card>
-
+ 
         <Card className="border-none shadow-md overflow-hidden bg-background/50 backdrop-blur">
           <CardHeader className="border-b bg-muted/30">
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -268,10 +280,31 @@ export function PropertyForm({ initialData, mode }: PropertyFormProps) {
                 </SelectContent>
               </Select>
             </div>
+            
+            <div className="col-span-full space-y-4 pt-4 border-t mt-2">
+              <Label className="text-sm font-semibold">Skema Pembayaran (Bisa pilih lebih dari satu)</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-lg border bg-muted/20">
+                {["CASH KERAS", "CASH BERTAHAP", "KPR BANK", "KPR DEVELOPER"].map((option) => (
+                  <div key={option} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`pay-${option}`} 
+                      checked={selectedPaymentSchemas.includes(option)}
+                      onCheckedChange={(checked) => handlePaymentChange(option, !!checked)}
+                    />
+                    <Label 
+                      htmlFor={`pay-${option}`}
+                      className="text-xs font-normal cursor-pointer hover:text-primary transition-colors"
+                    >
+                      {option}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
-
+ 
       <div className="space-y-8">
         <Card className="border-none shadow-md overflow-hidden bg-background/50 backdrop-blur">
           <CardHeader className="border-b bg-muted/30">
@@ -286,7 +319,7 @@ export function PropertyForm({ initialData, mode }: PropertyFormProps) {
               initialUrls={initialData?.images?.map((img: any) => img.imageUrl) || []}
               maxImages={10}
             />
-
+ 
             <div className="flex items-center space-x-2 pt-2 border-t mt-4">
               <input 
                 type="checkbox" 
@@ -301,7 +334,7 @@ export function PropertyForm({ initialData, mode }: PropertyFormProps) {
             </div>
           </CardContent>
         </Card>
-
+ 
         <Card className="border-none shadow-md overflow-hidden bg-background/50 backdrop-blur">
           <CardHeader className="border-b bg-muted/30">
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -329,13 +362,13 @@ export function PropertyForm({ initialData, mode }: PropertyFormProps) {
                 </SelectItem>
               </SelectContent>
             </Select>
-
+ 
             <p className="mt-2 text-[10px] text-muted-foreground italic">
               Status ini akan menentukan bagaimana properti ditampilkan di website publik.
             </p>
           </CardContent>
         </Card>
-
+ 
         <div className="sticky bottom-4 space-y-2">
           <Button type="submit" className="w-full py-6 text-lg font-bold shadow-lg" disabled={isLoading}>
             {isLoading ? (
@@ -358,4 +391,3 @@ export function PropertyForm({ initialData, mode }: PropertyFormProps) {
     </form>
   );
 }
-

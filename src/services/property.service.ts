@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { Property } from "@/types/property.types";
 
 export const fetchProperties = async (filters?: {
   city?: string;
@@ -89,7 +90,7 @@ export const fetchProperties = async (filters?: {
   }
 };
 
-export const fetchPropertyBySlug = async (slug: string) => {
+export const fetchPropertyBySlug = async (slug: string): Promise<Property | null> => {
   try {
     const property = await prisma.property.findUnique({
       where: { slug },

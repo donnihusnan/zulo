@@ -14,8 +14,10 @@ export interface Property {
   status: string;
   featured: boolean;
   image: string;
-  createdAt: string;
-  updatedAt?: string;
+  images?: PropertyImage[];
+  paymentSchema?: string | null;
+  createdAt: Date | string;
+  updatedAt?: Date | string;
 }
 
 export interface PropertyImage {
@@ -34,4 +36,22 @@ export interface Inquiry {
   message: string;
   status: string;
   createdAt: string;
+}
+
+export interface PropertyInput {
+  title: string;
+  slug: string;
+  description: string;
+  price: string | number;
+  city: string;
+  address: string;
+  bedrooms: string | number;
+  bathrooms: string | number;
+  landSize: string | number;
+  buildingSize?: string | number;
+  propertyType: string;
+  status?: string;
+  featured?: boolean;
+  paymentSchema?: string | null;
+  images?: string[];
 }

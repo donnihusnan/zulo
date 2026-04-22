@@ -42,6 +42,18 @@ const Navbar = () => {
             >
               Properti
             </Link>
+            <Link
+              href="/z-home"
+              className="text-foreground/80 transition-colors hover:text-primary underline-offset-4 hover:underline"
+            >
+              Z-Home
+            </Link>
+            <Link
+              href="/bangun-rumah-yab"
+              className="text-foreground/80 transition-colors hover:text-primary underline-offset-4 hover:underline"
+            >
+              Bangun Rumah x YAB
+            </Link>
           </nav>
         </div>
 
@@ -57,35 +69,30 @@ const Navbar = () => {
 
           <div className="md:hidden">
             <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="hover:bg-primary/10"
-                  />
-                }
-              >
-                <Menu className="h-5 w-5" />
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hover:bg-primary/10"
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px]">
-                <DropdownMenuItem
-                  render={<Link href="/" />}
-                  className="cursor-pointer"
-                >
-                  Beranda
+                <DropdownMenuItem asChild>
+                  <Link href="/" className="cursor-pointer">
+                    Beranda
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  render={<Link href="/properties" />}
-                  className="cursor-pointer"
-                >
-                  Properti
+                <DropdownMenuItem asChild>
+                  <Link href="/properties" className="cursor-pointer">
+                    Properti
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  render={<Link href="/admin" />}
-                  className="cursor-pointer"
-                >
-                  Admin Dashboard
+                <DropdownMenuItem asChild>
+                  <Link href="/admin" className="cursor-pointer">
+                    Admin Dashboard
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

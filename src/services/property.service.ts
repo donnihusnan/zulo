@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { Property } from "@/types/property.types";
 
 export const fetchProperties = async (filters?: {
@@ -14,7 +15,7 @@ export const fetchProperties = async (filters?: {
   maxArea?: string | number;
 }) => {
   try {
-    const where: any = {};
+    const where: Prisma.PropertyWhereInput = {};
 
     if (filters) {
       if (filters.city && filters.city !== "All") {
@@ -29,18 +30,11 @@ export const fetchProperties = async (filters?: {
           mode: "insensitive",
         };
       }
-      if (filters.minPrice) {
-        where.price = {
-          ...where.price,
-          gte: Number(filters.minPrice),
-        };
-      }
-      if (filters.maxPrice) {
-        where.price = {
-          ...where.price,
-          lte: Number(filters.maxPrice),
-        };
-      }
+      const priceFilter: Prisma.FloatFilter = {};
+      if (filters.minPrice) priceFilter.gte = Number(filters.minPrice);
+      if (filters.maxPrice) priceFilter.lte = Number(filters.maxPrice);
+      if (Object.keys(priceFilter).length > 0) where.price = priceFilter;
+
       if (filters.bedrooms && filters.bedrooms !== "Any") {
         where.bedrooms = {
           gte: Number(filters.bedrooms),
@@ -51,18 +45,11 @@ export const fetchProperties = async (filters?: {
           gte: Number(filters.bathrooms),
         };
       }
-      if (filters.minArea) {
-        where.landSize = {
-          ...where.landSize,
-          gte: Number(filters.minArea),
-        };
-      }
-      if (filters.maxArea) {
-        where.landSize = {
-          ...where.landSize,
-          lte: Number(filters.maxArea),
-        };
-      }
+
+      const landSizeFilter: Prisma.FloatFilter = {};
+      if (filters.minArea) landSizeFilter.gte = Number(filters.minArea);
+      if (filters.maxArea) landSizeFilter.lte = Number(filters.maxArea);
+      if (Object.keys(landSizeFilter).length > 0) where.landSize = landSizeFilter;
     }
 
     const properties = await prisma.property.findMany({

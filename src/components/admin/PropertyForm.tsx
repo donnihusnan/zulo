@@ -26,7 +26,7 @@ interface PropertyFormProps {
 export function PropertyForm({ initialData, mode }: PropertyFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [existingImageUrls, setExistingImageUrls] = useState<string[]>(initialData?.images?.map((img: any) => img.imageUrl) || []);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>(initialData?.images?.map((img) => img.imageUrl) || []);
   const [selectedPaymentSchemas, setSelectedPaymentSchemas] = useState<string[]>(
     initialData?.paymentSchema ? initialData.paymentSchema.split(", ") : []
   );
@@ -316,7 +316,7 @@ export function PropertyForm({ initialData, mode }: PropertyFormProps) {
           <CardContent className="space-y-4 pt-6">
             <MultiImageUpload 
               onImagesChange={handleImagesChange}
-              initialUrls={initialData?.images?.map((img: any) => img.imageUrl) || []}
+              initialUrls={initialData?.images?.map((img) => img.imageUrl) || []}
               maxImages={10}
             />
  

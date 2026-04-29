@@ -1,13 +1,5 @@
 import Link from "next/link";
-import {
-  Home,
-  Facebook,
-  Twitter,
-  Instagram,
-  Mail,
-  Phone,
-  MapPin,
-} from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 
 import Image from "next/image";
 
@@ -34,26 +26,6 @@ const Footer = () => {
               impian dengan teknologi terdepan dan pengalaman pengguna yang
               seamless.
             </p>
-            <div className="flex space-x-5">
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Facebook className="h-5 w-5" />
-              </Link>
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Twitter className="h-5 w-5" />
-              </Link>
-              <Link
-                href="#"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Instagram className="h-5 w-5" />
-              </Link>
-            </div>
           </div>
 
           <div>

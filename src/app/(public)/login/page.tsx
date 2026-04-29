@@ -6,9 +6,16 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, ShieldCheck, Mail, Lock } from "lucide-react";
+import { Loader2, Mail, Lock } from "lucide-react";
 import Image from "next/image";
 
 export default function LoginPage() {
@@ -44,8 +51,9 @@ export default function LoginPage() {
         if (signInError) throw signInError;
         router.push("/admin");
       }
-    } catch (err: any) {
-      setError(err.message || "Terjadi kesalahan saat autentikasi");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Terjadi kesalahan saat autentikasi";
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -55,23 +63,29 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4 font-sans">
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center space-y-2 text-center">
-          <Image 
-            src="/zulo-logo.png" 
-            alt="Zulo Logo" 
-            width={64} 
-            height={64} 
+          <Image
+            src="/zulo-logo.png"
+            alt="Zulo Logo"
+            width={64}
+            height={64}
             className="mb-2"
           />
-          <h1 className="text-3xl font-black tracking-tight text-primary">ZULO ADMIN</h1>
-          <p className="text-sm text-muted-foreground">Silakan masuk untuk mengelola properti Anda.</p>
+          <h1 className="text-3xl font-black tracking-tight text-primary">
+            ZULO ADMIN
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Silakan masuk untuk mengelola properti Anda.
+          </p>
         </div>
 
         <Card className="border-none shadow-2xl">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">{isSignUp ? "Daftar Akun Baru" : "Masuk ke Dashboard"}</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              {isSignUp ? "Daftar Akun Baru" : "Masuk ke Dashboard"}
+            </CardTitle>
             <CardDescription>
-              {isSignUp 
-                ? "Masukkan email dan password untuk membuat akun admin." 
+              {isSignUp
+                ? "Masukkan email dan password untuk membuat akun admin."
                 : "Gunakan kredensial akun admin Anda."}
             </CardDescription>
           </CardHeader>
@@ -86,14 +100,14 @@ export default function LoginPage() {
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="admin@zulo.id" 
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="admin@zulo.id"
                     className="pl-10"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    required 
+                    required
                   />
                 </div>
               </div>
@@ -103,20 +117,20 @@ export default function LoginPage() {
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    id="password" 
-                    type="password" 
+                  <Input
+                    id="password"
+                    type="password"
                     className="pl-10"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    required 
+                    required
                   />
                 </div>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-primary py-6 text-lg font-bold hover:bg-primary/90"
                 disabled={isLoading}
               >
@@ -129,21 +143,18 @@ export default function LoginPage() {
                   <>{isSignUp ? "Daftar Akun" : "Masuk Sekarang"}</>
                 )}
               </Button>
-              <button 
+              <button
                 type="button"
                 onClick={() => setIsSignUp(!isSignUp)}
                 className="text-xs text-muted-foreground hover:text-primary transition-colors hover:underline"
               >
-                {isSignUp ? "Sudah punya akun? Masuk di sini" : "Ingin mendaftar sebagai admin baru?"}
+                {isSignUp
+                  ? "Sudah punya akun? Masuk di sini"
+                  : "Ingin mendaftar sebagai admin baru?"}
               </button>
             </CardFooter>
           </form>
         </Card>
-
-        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-          <ShieldCheck className="h-4 w-4" />
-          <span>Keamanan Terjamin oleh Zulo Security</span>
-        </div>
       </div>
     </div>
   );

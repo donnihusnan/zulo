@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Home, LayoutDashboard, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,10 +14,13 @@ import Image from "next/image";
 
 const Navbar = () => {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/70 backdrop-blur-md supports-[backdrop-filter]:bg-background/70">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/70 backdrop-blur-md supports-backdrop-filter:bg-background/70">
       <div className="container flex h-16 items-center justify-between px-4 md:px-8">
         <div className="flex items-center gap-2">
-          <Link href="/" className="flex items-center space-x-3 transition-opacity hover:opacity-90">
+          <Link
+            href="/"
+            className="flex items-center space-x-3 transition-opacity hover:opacity-90"
+          >
             <Image
               src="/zulo-logo.png"
               alt="Zulo Logo"

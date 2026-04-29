@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { fetchPropertyBySlug } from "@/services/property.service";
+import { PropertyImage } from "@/types/property.types";
 import PropertyGallery from "@/components/property/PropertyGallery";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,6 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
-import Image from "next/image";
 
 const PropertyDetailPage = () => {
   const params = useParams();
@@ -68,7 +68,7 @@ const PropertyDetailPage = () => {
   }
 
   const galleryImages = property.images && property.images.length > 0
-    ? property.images.map(img => img.imageUrl)
+    ? property.images.map((img: PropertyImage) => img.imageUrl)
     : [property.image];
 
   return (
@@ -138,14 +138,14 @@ const PropertyDetailPage = () => {
             />
           </div>
 
-          {(property as any).paymentSchema && (
+          {property.paymentSchema && (
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 animate-in fade-in slide-in-from-bottom-4">
               <h3 className="mb-3 text-sm font-black uppercase tracking-widest text-primary flex items-center gap-2">
                 <Tag className="h-4 w-4" />
                 Skema Pembayaran Tersedia
               </h3>
               <div className="flex flex-wrap gap-2">
-                {String((property as any).paymentSchema).split(", ").map((schema: string) => (
+                {String(property.paymentSchema).split(", ").map((schema: string) => (
                   <Badge key={schema} variant="secondary" className="bg-white/80 border-primary/10 text-primary font-bold px-4 py-2 rounded-lg">
                     {schema}
                   </Badge>

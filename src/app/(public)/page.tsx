@@ -4,6 +4,7 @@ import FeaturedProperties from "@/components/property/FeaturedProperties";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Search, Home as HomeIcon, Building2, ChevronRight, ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   return (
@@ -151,6 +152,4 @@ function TrackCard({
   );
 }
 
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(" ");
-}
+

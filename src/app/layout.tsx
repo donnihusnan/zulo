@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import { Rubik } from "next/font/google";
+import { Rubik, Geist } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import Providers from "@/components/Providers";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const rubik = Rubik({
   variable: "--font-rubik",
@@ -22,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id">
+    <html lang="id" className={cn("font-sans", geist.variable)}>
       <body
         className={`${rubik.variable} font-sans antialiased min-h-screen flex flex-col`}
       >

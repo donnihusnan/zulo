@@ -40,12 +40,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       take: 200,
     });
 
-    const propertyRoutes: MetadataRoute.Sitemap = properties.map((prop) => ({
-      url: `${baseUrl}/properties/${prop.slug}`,
-      lastModified: prop.updatedAt || new Date(),
-      changeFrequency: "weekly",
-      priority: 0.7,
-    }));
+    const propertyRoutes: MetadataRoute.Sitemap = properties.map(
+      (prop: { slug: string; updatedAt?: Date | null }) => ({
+        url: `${baseUrl}/properties/${prop.slug}`,
+        lastModified: prop.updatedAt || new Date(),
+        changeFrequency: "weekly",
+        priority: 0.7,
+      })
+    );
 
     return [...staticRoutes, ...propertyRoutes];
   } catch {

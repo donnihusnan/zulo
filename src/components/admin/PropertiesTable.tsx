@@ -62,6 +62,22 @@ import {
 
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { toast } from "sonner";
+import { formatIDR } from "@/config/site";
+
+function TableImageCell({ src, alt }: { src: string; alt: string }) {
+  const [currentSrc, setCurrentSrc] = useState(src || "/images/cari-properti.jpg");
+  return (
+    <div className="relative h-12 w-12 overflow-hidden rounded-lg border border-border/70 shadow-xs bg-muted">
+      <Image
+        src={currentSrc}
+        alt={alt}
+        fill
+        className="object-cover"
+        onError={() => setCurrentSrc("/images/cari-properti.jpg")}
+      />
+    </div>
+  );
+}
 
 interface AdminProperty {
   id: string;
@@ -77,6 +93,7 @@ interface AdminProperty {
 }
 
 const PropertiesTable = () => {
+  "use no memo";
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -111,14 +128,10 @@ const PropertiesTable = () => {
       accessorKey: "image",
       header: "Gambar",
       cell: ({ row }) => (
-        <div className="relative h-12 w-12 overflow-hidden rounded-lg border shadow-sm">
-          <Image
-            src={row.getValue("image")}
-            alt={row.getValue("title")}
-            fill
-            className="object-cover"
-          />
-        </div>
+        <TableImageCell
+          src={row.getValue("image")}
+          alt={row.getValue("title")}
+        />
       ),
     },
     {
@@ -135,7 +148,7 @@ const PropertiesTable = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="flex flex-col max-w-[250px]">
+        <div className="flex flex-col max-w-62.5">
           <span className="font-bold truncate text-foreground group-hover:text-primary transition-colors">
             {row.getValue("title")}
           </span>
@@ -159,13 +172,8 @@ const PropertiesTable = () => {
         );
       },
       cell: ({ row }) => {
-        const amount = parseFloat(row.getValue("price") as string);
-        const formatted = new Intl.NumberFormat("id-ID", {
-          style: "currency",
-          currency: "IDR",
-          maximumFractionDigits: 0,
-        }).format(amount);
-        return <div className="font-medium whitespace-nowrap">{formatted}</div>;
+        const amount = parseFloat(row.getValue("price") as string) || 0;
+        return <div className="font-bold whitespace-nowrap tabular-nums text-primary">{formatIDR(amount)}</div>;
       },
     },
     {
@@ -256,6 +264,7 @@ const PropertiesTable = () => {
     },
   ], [isPending]);
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: properties,
     columns,
@@ -289,7 +298,7 @@ const PropertiesTable = () => {
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div
             key={i}
-            className="w-full bg-emerald-500/5 h-[80px] animate-pulse rounded-lg"
+            className="w-full bg-emerald-500/5 h-20 animate-pulse rounded-lg"
           />
         ))}
       </div>
@@ -298,15 +307,15 @@ const PropertiesTable = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 items-center gap-3">
-          <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between w-full">
+        <div className="flex flex-col sm:flex-row flex-1 items-stretch sm:items-center gap-2 sm:gap-3 w-full">
+          <div className="relative flex-1 min-w-0 w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Cari judul, kota, atau lokasi..."
               value={globalFilter ?? ""}
               onChange={(e) => setGlobalFilter(e.target.value)}
-              className="pl-10 bg-background/50 border-emerald-100 focus-visible:ring-emerald-500 h-10"
+              className="pl-10 bg-background/50 border-emerald-100 focus-visible:ring-emerald-500 h-10 w-full"
             />
           </div>
           
@@ -314,7 +323,7 @@ const PropertiesTable = () => {
             value={(table.getColumn("status")?.getFilterValue() as string) ?? "all"}
             onValueChange={(value) => table.getColumn("status")?.setFilterValue(value)}
           >
-            <SelectTrigger className="w-[180px] bg-background/50 border-emerald-100 h-10">
+            <SelectTrigger className="w-full sm:w-44 bg-background/50 border-emerald-100 h-10 shrink-0">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
                 <SelectValue placeholder="Semua Status" />
@@ -331,16 +340,16 @@ const PropertiesTable = () => {
         <Button 
           type="button"
           onClick={() => router.push("/admin/properties/add")}
-          className="h-10 px-6 font-bold shadow-emerald-200 shadow-lg hover:shadow-emerald-300 transition-all"
+          className="h-10 px-5 font-bold shadow-emerald-200 shadow-md hover:shadow-emerald-300 transition-all shrink-0 w-full sm:w-auto"
         >
-          <Plus className="mr-2 h-5 w-5" />
+          <Plus className="mr-2 h-4 w-4" />
           Tambah Properti
         </Button>
       </div>
 
-      <div className="rounded-2xl border bg-card/30 backdrop-blur-sm shadow-xl shadow-emerald-900/5 overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
+      <div className="rounded-2xl border bg-card/30 backdrop-blur-sm shadow-xl shadow-emerald-900/5 overflow-hidden w-full max-w-full">
+        <div className="overflow-x-auto w-full">
+          <Table className="min-w-155">
             <TableHeader className="bg-emerald-50/50">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="border-emerald-100 hover:bg-transparent">
@@ -393,20 +402,20 @@ const PropertiesTable = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-between px-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground font-medium">
-          Menampilkan <span className="text-foreground">{table.getFilteredRowModel().rows.length}</span> properti
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2 py-4 w-full">
+        <div className="text-xs sm:text-sm text-muted-foreground font-medium text-center sm:text-left">
+          Menampilkan <span className="text-foreground font-semibold">{table.getFilteredRowModel().rows.length}</span> properti
         </div>
-        <div className="flex items-center space-x-6 lg:space-x-8">
+        <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 sm:gap-6 w-full sm:w-auto">
           <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">Baris per halaman</p>
+            <p className="text-xs sm:text-sm font-medium text-muted-foreground">Baris:</p>
             <Select
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => {
                 table.setPageSize(Number(value))
               }}
             >
-              <SelectTrigger className="h-8 w-[70px] bg-background/50 border-emerald-100">
+              <SelectTrigger className="h-8 w-16 bg-background/50 border-emerald-100 text-xs">
                 <SelectValue placeholder={table.getState().pagination.pageSize} />
               </SelectTrigger>
               <SelectContent side="top">
@@ -418,28 +427,30 @@ const PropertiesTable = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+          <div className="text-xs sm:text-sm font-medium tabular-nums text-muted-foreground">
             Halaman {table.getState().pagination.pageIndex + 1} dari{" "}
-            {table.getPageCount()}
+            {table.getPageCount() || 1}
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1.5">
             <Button
               variant="outline"
-              className="h-10 w-10 p-0 border-emerald-100 hover:bg-emerald-50 hover:text-emerald-700"
+              size="sm"
+              className="h-8 w-8 p-0 border-emerald-100 hover:bg-emerald-50 hover:text-emerald-700"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
               <span className="sr-only">Halaman sebelumnya</span>
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
-              className="h-10 w-10 p-0 border-emerald-100 hover:bg-emerald-50 hover:text-emerald-700"
+              size="sm"
+              className="h-8 w-8 p-0 border-emerald-100 hover:bg-emerald-50 hover:text-emerald-700"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
               <span className="sr-only">Halaman berikutnya</span>
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </div>

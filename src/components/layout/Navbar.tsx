@@ -1,21 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu, MessageSquare, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import Image from "next/image";
+import { siteConfig, getWhatsAppUrl } from "@/config/site";
+import { cn } from "@/lib/utils";
 
 const Navbar = () => {
+  const pathname = usePathname();
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/70 backdrop-blur-md supports-backdrop-filter:bg-background/70">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-8">
+    <header className="fixed top-0 inset-x-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-md supports-backdrop-filter:bg-background/70">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
         <div className="flex items-center gap-2">
           <Link
             href="/"
@@ -26,47 +31,66 @@ const Navbar = () => {
               alt="Zulo Logo"
               width={32}
               height={32}
-              className="h-8 w-auto"
+              className="h-8 w-auto rounded-lg shadow-xs"
+              priority
             />
-            <span className="text-xl font-bold tracking-tight text-primary">
-              ZULO
-            </span>
+            <div className="flex flex-col">
+              <span className="text-xl font-black tracking-tight text-primary leading-none">
+                {siteConfig.name}
+              </span>
+              <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-semibold">
+                Property & Build
+              </span>
+            </div>
           </Link>
-          <nav className="hidden ml-10 space-x-6 text-sm font-medium md:flex">
-            <Link
-              href="/"
-              className="text-foreground/80 transition-colors hover:text-primary underline-offset-4 hover:underline"
-            >
-              Beranda
-            </Link>
-            <Link
-              href="/properties"
-              className="text-foreground/80 transition-colors hover:text-primary underline-offset-4 hover:underline"
-            >
-              Properti
-            </Link>
-            <Link
-              href="/z-home"
-              className="text-foreground/80 transition-colors hover:text-primary underline-offset-4 hover:underline"
-            >
-              Z-Home
-            </Link>
-            <Link
-              href="/bangun-rumah-yab"
-              className="text-foreground/80 transition-colors hover:text-primary underline-offset-4 hover:underline"
-            >
-              Bangun Rumah x YAB
-            </Link>
+
+          <nav className="hidden ml-10 space-x-1 text-sm font-medium md:flex">
+            {siteConfig.nav.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "px-3 py-1.5 rounded-full text-xs font-bold transition-all",
+                    isActive
+                      ? "bg-primary/10 text-primary font-black"
+                      : "text-foreground/75 hover:text-primary hover:bg-muted/50"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <div className="hidden items-center gap-2 md:flex">
             <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs font-bold text-muted-foreground hover:text-primary"
               asChild
-              className="bg-primary hover:bg-primary/95 text-primary-foreground font-semibold rounded-full px-6 shadow-sm transition-all hover:shadow-md"
             >
-              <Link href="/properties">Jelajahi Properti</Link>
+              <a
+                href={getWhatsAppUrl("Halo Zulo, saya ingin berkonsultasi mengenai properti & layanan Zulo.")}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageSquare className="h-3.5 w-3.5 mr-1 text-emerald-600" />
+                Konsultasi WA
+              </a>
+            </Button>
+            <Button
+              asChild
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full px-5 shadow-xs transition-all"
+            >
+              <Link href="/properties">
+                Jelajahi Properti
+                <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+              </Link>
             </Button>
           </div>
 
@@ -76,27 +100,50 @@ const Navbar = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="hover:bg-primary/10"
+                  className="hover:bg-primary/10 rounded-lg"
+                  aria-label="Menu Navigasi"
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[200px]">
-                <DropdownMenuItem asChild>
-                  <Link href="/" className="cursor-pointer">
-                    Beranda
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/properties" className="cursor-pointer">
-                    Properti
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/admin" className="cursor-pointer">
-                    Admin Dashboard
-                  </Link>
-                </DropdownMenuItem>
+              <DropdownMenuContent align="end" className="w-60 p-2 space-y-1">
+                {siteConfig.nav.map((item) => (
+                  <DropdownMenuItem key={item.href} asChild>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "cursor-pointer font-medium py-2 px-3 rounded-md text-sm",
+                        pathname === item.href ? "bg-primary/10 text-primary font-bold" : ""
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <div className="pt-1 flex flex-col gap-1.5">
+                  <Button
+                    size="sm"
+                    className="w-full bg-primary text-primary-foreground font-bold rounded-lg text-xs"
+                    asChild
+                  >
+                    <Link href="/properties">Jelajahi Properti</Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full text-xs font-semibold border-emerald-600/30 text-emerald-700"
+                    asChild
+                  >
+                    <a
+                      href={getWhatsAppUrl()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Hubungi via WhatsApp
+                    </a>
+                  </Button>
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

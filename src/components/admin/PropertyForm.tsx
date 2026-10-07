@@ -2,7 +2,7 @@
  
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Save, Image as ImageIcon, MapPin, Tag, Info } from "lucide-react";
+import { Loader2, Save, Image as ImageIcon, MapPin, Tag, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { createProperty, updateProperty } from "@/services/admin.service";
 import { PropertyInput, Property } from "@/types/property.types";
 import { createClient } from "@/utils/supabase/client";
+import { slugify } from "@/config/site";
  
 interface PropertyFormProps {
   initialData?: Property;
@@ -62,20 +63,25 @@ export function PropertyForm({ initialData, mode }: PropertyFormProps) {
       const newUploadedUrls: string[] = [];
       
       for (const file of imageFiles) {
-        const fileExt = file.name.split('.').pop();
+        const rawExt = (file.name.split('.').pop() || '').toLowerCase();
+        const allowedExts = ['jpg', 'jpeg', 'png', 'webp', 'avif'];
+        const fileExt = allowedExts.includes(rawExt) ? rawExt : 'jpg';
         const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
         const filePath = `properties/${fileName}`;
- 
+
         const { error: uploadError } = await supabase.storage
           .from('property-images')
-          .upload(filePath, file);
- 
+          .upload(filePath, file, {
+            contentType: file.type || 'image/jpeg',
+            upsert: false,
+          });
+
         if (uploadError) throw new Error(`Gagal mengunggah gambar: ${file.name}`);
- 
+
         const { data: { publicUrl } } = supabase.storage
           .from('property-images')
           .getPublicUrl(filePath);
- 
+
         newUploadedUrls.push(publicUrl);
       }
  
@@ -85,7 +91,7 @@ export function PropertyForm({ initialData, mode }: PropertyFormProps) {
       // 3. Prepare data
       const data: PropertyInput = {
         title: (formData.get("title") as string) || "",
-        slug: ((formData.get("title") as string) || "").toLowerCase().replace(/ /g, "-"),
+        slug: slugify((formData.get("title") as string) || ""),
         description: (formData.get("description") as string) || "",
         price: (formData.get("price") as string) || "0",
         city: (formData.get("city") as string) || "",
@@ -274,6 +280,7 @@ export function PropertyForm({ initialData, mode }: PropertyFormProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Rumah">Rumah</SelectItem>
+                  <SelectItem value="Villa">Villa</SelectItem>
                   <SelectItem value="Apartemen">Apartemen</SelectItem>
                   <SelectItem value="Ruko">Ruko</SelectItem>
                   <SelectItem value="Tanah">Tanah</SelectItem>

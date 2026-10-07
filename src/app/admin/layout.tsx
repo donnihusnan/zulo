@@ -1,20 +1,20 @@
-import AdminSidebar from "@/components/admin/AdminSidebar";
-import AdminHeader from "@/components/admin/AdminHeader";
+import AdminShell from "@/components/admin/AdminShell";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="min-h-screen bg-muted/20">
-      <AdminHeader />
-      <div className="flex">
-        <AdminSidebar />
-        <main className="flex-1 p-4 pt-24 transition-all duration-300 sm:ml-64 sm:p-8 sm:pt-24">
-          <div className="mx-auto max-w-7xl">{children}</div>
-        </main>
-      </div>
-    </div>
-  );
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  return <AdminShell>{children}</AdminShell>;
 }

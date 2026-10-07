@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Upload, X, Loader2, Globe } from "lucide-react";
+import { Upload, X, Globe } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 
@@ -16,18 +16,25 @@ interface MultiImageUploadProps {
 }
 
 export function MultiImageUpload({ onImagesChange, initialUrls = [], maxImages = 10 }: MultiImageUploadProps) {
-  const [images, setImages] = useState<LocalImage[]>([]);
-  const isInitialized = useRef(false);
+  const [images, setImages] = useState<LocalImage[]>(() =>
+    initialUrls.map(url => ({
+      id: url,
+      preview: url
+    }))
+  );
+  const isInitialized = useRef(initialUrls.length > 0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize from props
+  // Initialize from props if updated asynchronously
   useEffect(() => {
     if (!isInitialized.current && initialUrls.length > 0) {
-      setImages(initialUrls.map(url => ({
-        id: url,
-        preview: url
-      })));
       isInitialized.current = true;
+      queueMicrotask(() => {
+        setImages(initialUrls.map(url => ({
+          id: url,
+          preview: url
+        })));
+      });
     }
   }, [initialUrls]);
 
@@ -58,12 +65,33 @@ export function MultiImageUpload({ onImagesChange, initialUrls = [], maxImages =
     const selectedFiles = Array.from(e.target.files || []);
     if (selectedFiles.length === 0) return;
 
-    if (images.length + selectedFiles.length > maxImages) {
+    const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+    const validFiles: File[] = [];
+    for (const file of selectedFiles) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        toast.error(`Format berkas "${file.name}" tidak didukung. Gunakan JPG, PNG, WebP, atau AVIF.`);
+        continue;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`Ukuran berkas "${file.name}" melebihi 5MB.`);
+        continue;
+      }
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    if (images.length + validFiles.length > maxImages) {
       toast.error(`Maksimal ${maxImages} gambar diperbolehkan.`);
       return;
     }
 
-    const newImages: LocalImage[] = selectedFiles.map(file => ({
+    const newImages: LocalImage[] = validFiles.map(file => ({
       id: Math.random().toString(36).substring(2),
       file,
       preview: URL.createObjectURL(file)
@@ -111,7 +139,8 @@ export function MultiImageUpload({ onImagesChange, initialUrls = [], maxImages =
             <button
               type="button"
               onClick={() => removeImage(index)}
-              className="absolute top-1.5 right-1.5 p-1.5 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transform scale-90 group-hover:scale-100 transition-all focus:opacity-100"
+              className="absolute top-1.5 right-1.5 p-1.5 rounded-full bg-black/60 text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transform scale-100 sm:scale-90 sm:group-hover:scale-100 transition-all focus:opacity-100"
+              aria-label="Hapus foto"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -134,7 +163,7 @@ export function MultiImageUpload({ onImagesChange, initialUrls = [], maxImages =
         ref={fileInputRef}
         onChange={handleFileSelect}
         multiple
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp,image/avif"
         className="hidden"
       />
       <p className="text-[10px] text-muted-foreground italic flex items-center gap-1.5">

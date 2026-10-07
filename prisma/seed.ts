@@ -5,7 +5,6 @@ async function main() {
 
   // 0. Clean database
   await prisma.propertyImage.deleteMany();
-  await prisma.inquiry.deleteMany();
   await prisma.property.deleteMany();
   const properties = [
     {

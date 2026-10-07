@@ -27,17 +27,6 @@ export interface PropertyImage {
   order: number;
 }
 
-export interface Inquiry {
-  id: string;
-  propertyId: string | null;
-  name: string;
-  email: string;
-  phone: string;
-  message: string;
-  status: string;
-  createdAt: string;
-}
-
 export interface PropertyInput {
   title: string;
   slug: string;

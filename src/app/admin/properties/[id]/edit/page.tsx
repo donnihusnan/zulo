@@ -41,13 +41,13 @@ export default function EditPropertyPage() {
   return (
     <div className="space-y-6 pb-20">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" asChild>
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Button variant="outline" size="icon" className="shrink-0 h-9 w-9" asChild>
             <Link href="/admin/properties">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
-          <h1 className="text-3xl font-bold tracking-tight">Edit Detail Properti</h1>
+          <h1 className="text-xl sm:text-3xl font-black tracking-tight">Edit Detail Properti</h1>
         </div>
       </div>
 

@@ -73,7 +73,7 @@ const PropertyGallery = ({ images }: PropertyGalleryProps) => {
           <button
             key={index}
             onClick={() => setActiveIndex(index)}
-            className={`relative h-20 w-32 flex-shrink-0 overflow-hidden rounded-lg transition-all ${
+            className={`relative h-20 w-32 shrink-0 overflow-hidden rounded-lg transition-all ${
               activeIndex === index
                 ? "ring-2 ring-primary ring-offset-2"
                 : "opacity-60 hover:opacity-100"
